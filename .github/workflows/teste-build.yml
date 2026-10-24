@@ -1,15 +1,32 @@
-name: Teste INFECTO IA
+name: Verificacao INFECTO IA V3.7
 on:
   push:
-    branches: [teste-melhorias-v37]
+    branches:
+      - teste-melhorias-v37
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   build:
+    name: Instalar e compilar
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Obter codigo
+        uses: actions/checkout@v4
+      - name: Preparar Node
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-audit --no-fund
-      - run: npm run build
+      - name: Instalar dependencias
+        run: npm install --no-audit --no-fund
+      - name: Compilar aplicacao
+        run: npm run build
+      - name: Confirmar arquivos gerados
+        run: test -f dist/index.html && test -d dist/assets
+      - name: Salvar resultado da compilacao
+        uses: actions/upload-artifact@v4
+        with:
+          name: infecto-ia-v37-build
+          path: dist/
+          if-no-files-found: error
