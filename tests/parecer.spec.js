@@ -47,7 +47,7 @@ test('importa DOCX sintético, distribui 15 tópicos e exporta Word instituciona
   expect((xml.match(/<w:top\b/g) || []).length).toBe(14);
   expect(footer).toContain('INFECTO IA');
   expect(footer).toContain('REVISÃO MÉDICA');
-  expect(xml).toContain('Calibri');
+  expect(execFileSync('unzip', ['-p', filePath, 'word/styles.xml'], { encoding: 'utf8' })).toContain('Calibri');
 });
 
 test('bloqueia exportação de parecer vazio e acima de 830 palavras', async ({ page }) => {
