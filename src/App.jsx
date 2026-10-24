@@ -103,21 +103,24 @@ export default function App() {
     .trim()
     .split(/\s+/)
     .filter(Boolean).length;
-  const SEMAFOROS = {
-    verde: "VERDE — INFORMAÇÕES SUFICIENTES",
-    amarelo: "AMARELO — INFORMAÇÕES INCOMPLETAS",
-    vermelho: "VERMELHO — AUSÊNCIA CRÍTICA OU INCONSISTÊNCIA"
-  };
-
-  const semaforoCadastral = campos[0].trim()
-    ? SEMAFOROS.amarelo
-    : SEMAFOROS.vermelho;
-
-  const semaforoClinico = [2, 8, 9].some(
-    (indice) => !campos[indice].trim()
-  )
-    ? SEMAFOROS.vermelho
-    : SEMAFOROS.amarelo;
+  const conferencia = TOPICOS.map((t, i) => ({
+    titulo: t.titulo,
+    preenchido: Boolean(campos[i].trim())
+  }));
+  const preenchidos = conferencia.filter((t) => t.preenchido).length;
+  const atb = campos[6].trim();
+  const ausenciaATB = /(?:sem|nega|nenhum|não há|nao ha)\s+(?:uso\s+de\s+)?(?:antibióticos?|antimicrobianos?|atb)/i.test(atb);
+  const criterios = [
+    ["Nome", /(?:ceftriaxona|meropenem|vancomicina|cefepime|teicoplanina|ciprofloxacino|amoxicilina|azitromicina|piperacilina)/i.test(atb)],
+    ["Dose", /\d+(?:[.,]\d+)?\s*(?:mg|g|ui)/i.test(atb)],
+    ["Via", /\b(?:ev|iv|vo|im|oral|endovenosa|intravenosa)\b/i.test(atb)],
+    ["Intervalo", /(?:\d+\s*\/\s*\d+\s*h|a cada\s+\d+\s*(?:h|horas))/i.test(atb)],
+    ["Data de início", /\d{1,2}\/\d{1,2}(?:\/\d{2,4})?/.test(atb)],
+    ["Justificativa", /(?:justificativa|indicação|devido a|tratamento de|por suspeita)/i.test(atb)]
+  ];
+  const fatos = [2, 3, 5, 7, 8, 9, 10, 11, 12, 13]
+    .filter((i) => campos[i].trim())
+    .map((i) => ({ numero: i + 1, titulo: TOPICOS[i].titulo, texto: campos[i].trim() }));
   const estiloBotao = {
     padding: "12px 20px",
     margin: "8px 8px 8px 0",
@@ -162,20 +165,6 @@ export default function App() {
             Formulário de preenchimento e visualização
             de minuta para revisão médica.
           </p>
-          <div style={{
-            border: "1px solid #ccc",
-            padding: "12px",
-            marginBottom: "16px",
-            borderRadius: "6px"
-          }}>
-            <h3>PRÉ-VALIDAÇÃO DO PARECER</h3>
-            <p>CADASTRAL: {semaforoCadastral}</p>
-            <p>CLÍNICO: {semaforoClinico}</p>
-            <p>
-              Verificação preliminar de preenchimento.
-              Não substitui a validação médica.
-            </p>
-          </div>
           <p
             style={{
               padding: "12px",
@@ -258,7 +247,32 @@ export default function App() {
                 border: "1px solid #ccc"
               }}
             >
-              <h2>MINUTA PARA REVISÃO MÉDICA</h2>
+              <h2>BLOCO 1 — PRÉ-VALIDAÇÃO DO PARECER</h2>
+              <p>Conferência preliminar. Não integra o parecer institucional final.</p>
+              <h3>1. TRIAGEM DE ANTIMICROBIANOS</h3>
+              <p style={{color: atb ? "#8a5a00" : "#a00000"}}>
+                {!atb ? "VERMELHO — CAMPO 7 NÃO PREENCHIDO" : ausenciaATB ? "AMARELO — AUSÊNCIA REFERIDA; CONFERIR PRESCRIÇÃO" : "AMARELO — REGISTRO ENCONTRADO; CONFERIR PRESCRIÇÃO"}
+              </p>
+              <p>Prescrição e administração não são confirmadas automaticamente.</p>
+              {atb && <p>Registro do tópico 7: {atb}</p>}
+              {atb && !ausenciaATB && (
+                <ul>{criterios.map(([nome, ok]) => (
+                  <li key={nome}>{nome}: {ok ? "IDENTIFICADO NO TEXTO — CONFERIR" : "NÃO IDENTIFICADO — CONFERIR"}</li>
+                ))}</ul>
+              )}
+              <p>A identificação por palavras-chave não valida cada medicamento individualmente.</p>
+              <h3>2. FATOS RELEVANTES</h3>
+              <p style={{color: fatos.length ? "#8a5a00" : "#a00000"}}>
+                {fatos.length ? "AMARELO — INFORMAÇÕES DISPONÍVEIS PARA REVISÃO MÉDICA" : "VERMELHO — SEM DADOS CLÍNICOS"}
+              </p>
+              <p>Registros clínicos documentados para revisão, sem interpretação automática:</p>
+              <ul>{fatos.map((f) => <li key={f.numero}><strong>{f.numero}. {f.titulo}:</strong> {f.texto}</li>)}</ul>
+              <h3>CONFERÊNCIA DOS 15 TÓPICOS — {preenchidos}/15 PREENCHIDOS</h3>
+              <ol>{conferencia.map((t, i) => (
+                <li key={i}>{t.titulo}: <strong style={{color: t.preenchido ? "#166534" : "#a00000"}}>{t.preenchido ? "PREENCHIDO" : "PENDENTE"}</strong></li>
+              ))}</ol>
+              <hr style={{border: 0, borderTop: "1px solid #d3d3d3", margin: "28px 0"}} />
+              <h2>BLOCO 2 — MINUTA DO PARECER INFECTOLÓGICO</h2>
 
               <p>
                 Palavras aproximadas: {quantidadePalavras}
