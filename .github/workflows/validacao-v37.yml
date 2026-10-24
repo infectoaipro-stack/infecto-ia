@@ -23,6 +23,10 @@ jobs:
         run: |
           test -s dist/index.html
           test -d dist/assets
+      - name: Instalar Chromium para testes
+        run: npx playwright install --with-deps chromium
+      - name: Testar DOCX sintetico no navegador
+        run: npm run test:e2e
       - name: Arquivar compilacao
         uses: actions/upload-artifact@v4
         with:
