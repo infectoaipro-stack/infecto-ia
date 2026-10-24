@@ -29,7 +29,7 @@ const update=(i,v)=>setFields(prev=>prev.map((x,j)=>j===i?v:x));
 const content=HEAD.map((h,i)=>(i+1)+". "+h+"\n"+(fields[i].trim()||"NÃO INFORMADO")).join("\n\n────────────────────────\n\n").toUpperCase();
 const identityRisk=/\\b(?:outro paciente|paciente diferente|divergência de identidade|identidade divergente|exame de outro paciente)\\b/i.test(raw);
 const hasCulture=/hemocultura|urocultura|cultura/i.test(fields.join(" "));
-const hasAtb=drugs.length>0;
+const hasAtb=audit(fields[6]+"\n"+fields[12]).length>0;
 const triage=[
 ["Identificação e segregação",identityRisk?"🔴 DIVERGÊNCIA — BLOQUEAR":"🟡 CONFERIR DOCUMENTOS"],
 ["Exames e cronologia",fields[5].trim()?"🟡 CONFERIR ORIGEM E DATAS":"⚪ NÃO DOCUMENTADOS"],
