@@ -17,6 +17,8 @@ jobs:
           node-version: '22'
       - name: Instalar dependencias
         run: npm install --no-audit --no-fund
+      - name: Testes de regressão
+        run: node --test tests/*.test.mjs
       - name: Compilar Vite
         run: npm run build
       - name: Validar artefatos
