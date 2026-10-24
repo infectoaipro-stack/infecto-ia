@@ -103,7 +103,21 @@ export default function App() {
     .trim()
     .split(/\s+/)
     .filter(Boolean).length;
+  const SEMAFOROS = {
+    verde: "VERDE — INFORMAÇÕES SUFICIENTES",
+    amarelo: "AMARELO — INFORMAÇÕES INCOMPLETAS",
+    vermelho: "VERMELHO — AUSÊNCIA CRÍTICA OU INCONSISTÊNCIA"
+  };
 
+  const semaforoCadastral = campos[0].trim()
+    ? SEMAFOROS.amarelo
+    : SEMAFOROS.vermelho;
+
+  const semaforoClinico = [2, 8, 9].some(
+    (indice) => !campos[indice].trim()
+  )
+    ? SEMAFOROS.vermelho
+    : SEMAFOROS.amarelo;
   const estiloBotao = {
     padding: "12px 20px",
     margin: "8px 8px 8px 0",
@@ -142,13 +156,26 @@ export default function App() {
         </section>
       ) : (
         <section>
-          <h2>Novo Parecer Infectológico</h2>
+          <h2>Novo Parecer para Infectologia</h2>
 
           <p>
             Formulário de preenchimento e visualização
             de minuta para revisão médica.
           </p>
-
+          <div style={{
+            border: "1px solid #ccc",
+            padding: "12px",
+            marginBottom: "16px",
+            borderRadius: "6px"
+          }}>
+            <h3>PRÉ-VALIDAÇÃO DO PARECER</h3>
+            <p>CADASTRAL: {semaforoCadastral}</p>
+            <p>CLÍNICO: {semaforoClinico}</p>
+            <p>
+              Verificação preliminar de preenchimento.
+              Não substitui a validação médica.
+            </p>
+          </div>
           <p
             style={{
               padding: "12px",
