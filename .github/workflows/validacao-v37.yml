@@ -1,0 +1,30 @@
+name: Validacao INFECTO IA V3.7
+on:
+  push:
+    branches: [teste-melhorias-v37]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar dependencias
+        run: npm install --no-audit --no-fund
+      - name: Compilar Vite
+        run: npm run build
+      - name: Validar artefatos
+        run: |
+          test -s dist/index.html
+          test -d dist/assets
+      - name: Arquivar compilacao
+        uses: actions/upload-artifact@v4
+        with:
+          name: infecto-ia-v37-dist
+          path: dist/
