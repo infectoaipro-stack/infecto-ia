@@ -77,3 +77,10 @@ test("conciliação: data de início ausente no tópico 7 bloqueia",()=>{
  const r=validarParecer({campos:c,dispositivos,antimicrobianos});
  assert.ok(r.pendencias.some(p=>p.codigo==="ATB_INICIO_NAO_CONCILIADO"));
 });
+
+test("tópicos 12 e 14: ausência de vínculo explícito gera alerta não clínico",()=>{
+ const r=validarParecer({campos,dispositivos,antimicrobianos});
+ assert.ok(r.pendencias.some(p=>p.codigo==="ATB_JUSTIFICATIVA_SEM_VINCULO"));
+ assert.ok(r.pendencias.some(p=>p.codigo==="ATB_OPINIAO_SEM_VINCULO"));
+ assert.equal(r.validacaoClinica,false);
+});
