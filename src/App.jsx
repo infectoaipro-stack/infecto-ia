@@ -292,7 +292,20 @@ export default function App() {
               <p>Não há correção automática nem autorização para uso clínico.</p>
               <h2>PRÉ-VALIDAÇÃO EXPERIMENTAL — NÃO HOMOLOGADA</h2>
               <p>Conferência preliminar. Não integra o parecer institucional final.</p>
-              <h3>1. TRIAGEM DE ANTIMICROBIANOS</h3>
+              <h3>BLOCO 1 — IDENTIFICAÇÃO E CONSISTÊNCIA DOCUMENTAL</h3>
+              <p>Conferência estrutural dos dados fornecidos. Identidade e prontuário não são verificados automaticamente.</p>
+              <p>Identificação (tópico 1): {campos[0].trim() ? "REGISTRO PRESENTE — VERIFICAR CONSISTÊNCIA" : "PENDENTE"}</p>
+              <p>História clínica (tópico 10): {campos[9].trim() ? "REGISTRO PRESENTE — VERIFICAR CRONOLOGIA" : "PENDENTE"}</p>
+              <h3>BLOCO 2 — TRIAGEM E CONCILIAÇÃO DE ANTIMICROBIANOS</h3>
+              <table style={{width:"100%",borderCollapse:"collapse",textAlign:"left"}}>
+                <thead><tr>{["NOME","DOSE","VIA","INTERVALO","INÍCIO INFORMADO","SITUAÇÃO"].map(x=><th key={x} style={{borderBottom:"1px solid #999",padding:6}}>{x}</th>)}</tr></thead>
+                <tbody>{antimicrobianos.length ? antimicrobianos.map((a,i)=><tr key={i}>{[a.nome||"NÃO INFORMADO",a.dose||"NÃO INFORMADO",a.via||"NÃO INFORMADO",a.intervalo||"NÃO INFORMADO",a.inicio||"NÃO INFORMADO",a.situacao||"NÃO INFORMADO"].map((x,j)=><td key={j} style={{padding:6,borderBottom:"1px solid #ddd"}}>{x}</td>)}</tr>) : <tr><td colSpan={6}>ANTIMICROBIANOS NÃO CONFERIDOS</td></tr>}</tbody>
+              </table>
+              <p>Datas são declaradas, não verificadas; nenhum registro comprova administração. Pendências críticas exigem revisão humana.</p>
+              <h3>BLOCO 3 — ANÁLISE CRÍTICA E PENDÊNCIAS DOCUMENTAIS</h3>
+              <p>Conciliação automatizada parcial dos tópicos 7, 8 e 13; justificativa (12) e opinião (14) ainda exigem análise clínica independente.</p>
+              <p>Alertas estruturais: {auditoriaEstrutural.pendencias.length}. Nenhum alerta equivale a aprovação clínica.</p>
+              <h4>TRIAGEM TEXTUAL COMPLEMENTAR</h4>
               <p style={{color: atb ? "#8a5a00" : "#a00000"}}>
                 {!atb ? "VERMELHO — CAMPO 7 NÃO PREENCHIDO" : ausenciaATB ? "AMARELO — AUSÊNCIA REFERIDA; CONFERIR PRESCRIÇÃO" : "AMARELO — REGISTRO ENCONTRADO; CONFERIR PRESCRIÇÃO"}
               </p>
