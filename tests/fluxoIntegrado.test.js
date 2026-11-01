@@ -5,6 +5,9 @@ import {auditarSiglas} from "../src/validacao/auditarSiglas.js";
 
 // Casos sintéticos: não contêm dados de pacientes.
 const campos=Array.from({length:15},(_,i)=>"INFORMAÇÃO FICTÍCIA TÓPICO "+(i+1));
+campos[6]="Ceftriaxona em uso; registro sintético.";
+campos[7]="CVC com sítio sem alterações documentadas.";
+campos[12]="Manter ceftriaxona conforme prescrição sintética.";
 const dispositivos=[{situacao:"presente",tipo:"CVC",avaliacao:"SÍTIO SEM ALTERAÇÕES DOCUMENTADAS"}];
 const antimicrobianos=[{situacao:"em_uso",nome:"ceftriaxona",dose:"1 g",via:"EV",intervalo:"24/24 h",inicio:"01/11/2026"}];
 
@@ -35,4 +38,23 @@ test("fluxo: sigla rara sem definição sinalizada independentemente da estrutur
 test("fluxo: ambiguidade de IRA requer revisão editorial",()=>{
  const r=auditarSiglas("IRA em avaliação.");
  assert.ok(r.achados.some(a=>a.codigo==="SIGLA_AMBIGUA"&&a.sigla==="IRA"));
+});
+
+test("contradicao: ausencia de ATB versus texto com ceftriaxona bloqueia",()=>{
+ const r=validarParecer({campos,dispositivos,antimicrobianos:[{situacao:"sem_uso_documentado"}]});
+ assert.ok(r.pendencias.some(p=>p.codigo==="ATB_CONTRADICAO_TEXTO"));
+});
+test("contradicao: ATB estruturado omitido no topico 13 bloqueia",()=>{
+ const c=[...campos];c[12]="Conduta fictícia sem nome de fármaco.";
+ const r=validarParecer({campos:c,dispositivos,antimicrobianos});
+ assert.ok(r.pendencias.some(p=>p.codigo==="ATB_NAO_CONCILIADO"));
+});
+test("contradicao: ausencia de dispositivos versus CVC no texto bloqueia",()=>{
+ const r=validarParecer({campos,dispositivos:[{situacao:"ausente"}],antimicrobianos});
+ assert.ok(r.pendencias.some(p=>p.codigo==="DISPOSITIVO_CONTRADICAO_TEXTO"));
+});
+test("contradicao: dispositivo estruturado omitido no topico 8 bloqueia",()=>{
+ const c=[...campos];c[7]="Sem identificação do dispositivo.";
+ const r=validarParecer({campos:c,dispositivos,antimicrobianos});
+ assert.ok(r.pendencias.some(p=>p.codigo==="DISPOSITIVO_NAO_CONCILIADO"));
 });
