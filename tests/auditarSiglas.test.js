@@ -1,0 +1,16 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {auditarSiglas} from "../src/validacao/auditarSiglas.js";
+const tem=(texto,codigo,sigla)=>auditarSiglas(texto).achados.some(a=>a.codigo===codigo&&a.sigla===sigla);
+test("detecta HAS por extenso",()=>assert.ok(tem("Hipertensão arterial sistêmica.","SIGLA_USUAL_POR_REVISAR","HAS")));
+test("aceita siglas comuns",()=>assert.equal(auditarSiglas("HAS e DRC.").achados.length,0));
+test("exige definição de CLABSI",()=>assert.ok(tem("CLABSI confirmada.","SIGLA_RARA_SEM_DEFINICAO","CLABSI")));
+test("aceita CLABSI definida",()=>assert.equal(auditarSiglas("CLABSI (infecção da corrente sanguínea associada a cateter central).").achados.length,0));
+test("sinaliza IRA ambígua",()=>assert.ok(tem("IRA em investigação.","SIGLA_AMBIGUA","IRA")));
+test("usa o dicionário ampliado para DPOC",()=>assert.ok(tem("Doença pulmonar obstrutiva crônica.","SIGLA_USUAL_POR_REVISAR","DPOC")));
+test("usa o dicionário ampliado para MRSA",()=>assert.ok(tem("MRSA isolado.","SIGLA_RARA_SEM_DEFINICAO","MRSA")));
+test("aceita MRSA definido",()=>assert.equal(auditarSiglas("MRSA (Staphylococcus aureus resistente à meticilina).").achados.length,0));
+test("identifica PCR ambígua",()=>assert.ok(tem("PCR elevada.","SIGLA_AMBIGUA","PCR")));
+test("não altera via e dose",()=>assert.equal(auditarSiglas("CEFTRIAXONA 1 G EV 24/24 H.").achados.length,0));
+test("reconhece definição com maiúsculas",()=>assert.equal(auditarSiglas("CLABSI (INFECÇÃO DA CORRENTE SANGUÍNEA ASSOCIADA A CATETER CENTRAL).").achados.length,0));
+test("sem alerta não é validação clínica",()=>assert.equal(auditarSiglas("HAS.").validacaoClinica,false));

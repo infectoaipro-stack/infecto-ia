@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { auditarSiglas } from "./validacao/auditarSiglas.js";
+import { validarParecer } from "./validacao/validarParecer.js";
 
 const TOPICOS = [
   {
@@ -84,6 +86,8 @@ export default function App() {
     Array(TOPICOS.length).fill("")
   );
   const [visualizar, setVisualizar] = useState(false);
+  const [dispositivos, setDispositivos] = useState([]);
+  const [antimicrobianos, setAntimicrobianos] = useState([]);
 
   function atualizarCampo(indice, valor) {
     setCampos((anteriores) =>
@@ -99,6 +103,8 @@ export default function App() {
     return `${indice + 1}. ${topico.titulo}\n${conteudo}`;
   }).join("\n\n────────────────────────\n\n").toUpperCase();
 
+  const auditoriaSiglas = auditarSiglas(textoParecer);
+  const auditoriaEstrutural = validarParecer({campos, dispositivos, antimicrobianos});
   const quantidadePalavras = textoParecer
     .trim()
     .split(/\s+/)
@@ -139,13 +145,13 @@ export default function App() {
       }}
     >
       <h1>INFECTO IA</h1>
-      <h2>Versão 3.7</h2>
+      <h2>Protótipo experimental — implementação parcial do protocolo V3.9</h2>
 
       <p>Sistema de Apoio à Infectologia</p>
       <p>Hospital Ruy Azeredo</p>
 
       <p>
-        Protocolo canônico — revisão de 22/10/2026
+        Protocolo clínico de referência: INFECTO IA V3.9 — 01/11/2026. Implementação e homologação clínica pendentes.
       </p>
 
       {!novoParecer ? (
@@ -218,6 +224,32 @@ export default function App() {
             </div>
           ))}
 
+          
+          <fieldset style={{marginTop:24}}>
+            <legend>CONFERÊNCIA ESTRUTURADA — DADOS FICTÍCIOS</legend>
+            <p>Registrar cada dispositivo e antimicrobiano. Texto livre não substitui a conferência.</p>
+            <h3>DISPOSITIVOS</h3>
+            <button type="button" onClick={() => setDispositivos([{situacao:"ausente"}])}>AUSÊNCIA DOCUMENTADA</button>
+            <button type="button" onClick={() => setDispositivos(ds => [...ds.filter(d => d.situacao !== "ausente"),{situacao:"presente",tipo:"",avaliacao:""}])}>ADICIONAR DISPOSITIVO</button>
+            {dispositivos.map((d,i) => <div key={i}>
+              <strong>Dispositivo {i+1}: {d.situacao}</strong>
+              {d.situacao === "presente" && <>
+                <input aria-label={"Tipo do dispositivo "+(i+1)} placeholder="Tipo e localização" value={d.tipo} onChange={e => setDispositivos(ds => ds.map((x,j) => i===j?{...x,tipo:e.target.value}:x))}/>
+                <input aria-label={"Avaliação do dispositivo "+(i+1)} placeholder="Avaliação documentada" value={d.avaliacao} onChange={e => setDispositivos(ds => ds.map((x,j) => i===j?{...x,avaliacao:e.target.value}:x))}/>
+              </>}
+              <button type="button" onClick={() => setDispositivos(ds => ds.filter((_,j) => j!==i))}>REMOVER</button>
+            </div>)}
+            <h3>ANTIMICROBIANOS</h3>
+            <button type="button" onClick={() => setAntimicrobianos([{situacao:"sem_uso_documentado"}])}>SEM USO DOCUMENTADO</button>
+            <button type="button" onClick={() => setAntimicrobianos(as => [...as.filter(a => a.situacao !== "sem_uso_documentado"),{situacao:"em_uso",nome:"",dose:"",via:"",intervalo:"",inicio:""}])}>ADICIONAR ATB</button>
+            {antimicrobianos.map((a,i) => <div key={i}>
+              <strong>ATB {i+1}: {a.situacao}</strong>
+              {a.situacao !== "sem_uso_documentado" && ["nome","dose","via","intervalo","inicio"].map(chave => <label key={chave}>{chave}: <input aria-label={"ATB "+(i+1)+" "+chave} value={a[chave]||""} onChange={e => setAntimicrobianos(as => as.map((x,j) => i===j?{...x,[chave]:e.target.value}:x))}/></label>)}
+              <button type="button" onClick={() => setAntimicrobianos(as => as.filter((_,j) => j!==i))}>REMOVER</button>
+            </div>)}
+            <p>Protótipo: conferir também coerência entre campos estruturados, tópicos 7, 8 e 13, prescrição e prontuário antes da homologação.</p>
+          </fieldset>
+
           <div style={{ marginTop: "24px" }}>
             <button
               style={estiloBotao}
@@ -247,9 +279,33 @@ export default function App() {
                 border: "1px solid #ccc"
               }}
             >
-              <h2>BLOCO 1 — PRÉ-VALIDAÇÃO DO PARECER</h2>
+              <h2>AUDITORIA EXPERIMENTAL — SEM VALIDAÇÃO CLÍNICA</h2>
+              <p>Estrutura: {auditoriaEstrutural.status} — {auditoriaEstrutural.pendencias.length} pendências. A conferência estruturada não substitui a revisão da prescrição e do prontuário.</p>
+              <h3>PENDÊNCIAS E BLOQUEIOS ESTRUTURAIS</h3>
+              {auditoriaEstrutural.pendencias.length === 0 ? <p>Nenhuma pendência estrutural detectada automaticamente. Sem validação clínica.</p> : (
+                <ul>{auditoriaEstrutural.pendencias.map((p,i) => (
+                  <li key={i}><strong>{p.gravidade.toUpperCase()} — {p.codigo}</strong> (tópico {p.topico}): {p.mensagem}</li>
+                ))}</ul>
+              )}
+              <p>Siglas: {auditoriaSiglas.status} — {auditoriaSiglas.achados.length} alertas.</p>
+              <ul>{auditoriaSiglas.achados.map((a,i) => <li key={i}>{a.codigo}: {a.sigla} {a.trecho || ""}</li>)}</ul>
+              <p>Não há correção automática nem autorização para uso clínico.</p>
+              <h2>PRÉ-VALIDAÇÃO EXPERIMENTAL — NÃO HOMOLOGADA</h2>
               <p>Conferência preliminar. Não integra o parecer institucional final.</p>
-              <h3>1. TRIAGEM DE ANTIMICROBIANOS</h3>
+              <h3>BLOCO 1 — IDENTIFICAÇÃO E CONSISTÊNCIA DOCUMENTAL</h3>
+              <p>Conferência estrutural dos dados fornecidos. Identidade e prontuário não são verificados automaticamente.</p>
+              <p>Identificação (tópico 1): {campos[0].trim() ? "REGISTRO PRESENTE — VERIFICAR CONSISTÊNCIA" : "PENDENTE"}</p>
+              <p>História clínica (tópico 10): {campos[9].trim() ? "REGISTRO PRESENTE — VERIFICAR CRONOLOGIA" : "PENDENTE"}</p>
+              <h3>BLOCO 2 — TRIAGEM E CONCILIAÇÃO DE ANTIMICROBIANOS</h3>
+              <table style={{width:"100%",borderCollapse:"collapse",textAlign:"left"}}>
+                <thead><tr>{["NOME","DOSE","VIA","INTERVALO","INÍCIO INFORMADO","SITUAÇÃO"].map(x=><th key={x} style={{borderBottom:"1px solid #999",padding:6}}>{x}</th>)}</tr></thead>
+                <tbody>{antimicrobianos.length ? antimicrobianos.map((a,i)=><tr key={i}>{[a.nome||"NÃO INFORMADO",a.dose||"NÃO INFORMADO",a.via||"NÃO INFORMADO",a.intervalo||"NÃO INFORMADO",a.inicio||"NÃO INFORMADO",a.situacao||"NÃO INFORMADO"].map((x,j)=><td key={j} style={{padding:6,borderBottom:"1px solid #ddd"}}>{x}</td>)}</tr>) : <tr><td colSpan={6}>ANTIMICROBIANOS NÃO CONFERIDOS</td></tr>}</tbody>
+              </table>
+              <p>Datas são declaradas, não verificadas; nenhum registro comprova administração. Pendências críticas exigem revisão humana.</p>
+              <h3>BLOCO 3 — ANÁLISE CRÍTICA E PENDÊNCIAS DOCUMENTAIS</h3>
+              <p>Conciliação automatizada parcial dos tópicos 7, 8 e 13; justificativa (12) e opinião (14) ainda exigem análise clínica independente.</p>
+              <p>Alertas estruturais: {auditoriaEstrutural.pendencias.length}. Nenhum alerta equivale a aprovação clínica.</p>
+              <h4>TRIAGEM TEXTUAL COMPLEMENTAR</h4>
               <p style={{color: atb ? "#8a5a00" : "#a00000"}}>
                 {!atb ? "VERMELHO — CAMPO 7 NÃO PREENCHIDO" : ausenciaATB ? "AMARELO — AUSÊNCIA REFERIDA; CONFERIR PRESCRIÇÃO" : "AMARELO — REGISTRO ENCONTRADO; CONFERIR PRESCRIÇÃO"}
               </p>
