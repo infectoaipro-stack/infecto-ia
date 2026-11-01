@@ -7,9 +7,9 @@ import {auditarSiglas} from "../src/validacao/auditarSiglas.js";
 const campos=Array.from({length:15},(_,i)=>"INFORMAÇÃO FICTÍCIA TÓPICO "+(i+1));
 campos[6]="Ceftriaxona em uso; registro sintético.";
 campos[7]="CVC com sítio sem alterações documentadas.";
-campos[12]="Manter ceftriaxona conforme prescrição sintética.";
+campos[12]="Manter ceftriaxona 2 g EV 24/24 h conforme prescrição sintética.";
 const dispositivos=[{situacao:"presente",tipo:"CVC",avaliacao:"SÍTIO SEM ALTERAÇÕES DOCUMENTADAS"}];
-const antimicrobianos=[{situacao:"em_uso",nome:"ceftriaxona",dose:"1 g",via:"EV",intervalo:"24/24 h",inicio:"01/11/2026"}];
+const antimicrobianos=[{situacao:"em_uso",nome:"ceftriaxona",dose:"2 g",via:"EV",intervalo:"24/24 h",inicio:"01/11/2026"}];
 
 test("fluxo: dados estruturados completos não equivalem a homologação clínica",()=>{
  const r=validarParecer({campos,dispositivos,antimicrobianos});
@@ -64,4 +64,10 @@ test("limite editorial: mais de 830 palavras bloqueia a revisão",()=>{
  const r=validarParecer({campos:c,dispositivos,antimicrobianos});
  assert.equal(r.status,"BLOQUEADO");
  assert.ok(r.pendencias.some(p=>p.codigo==="LIMITE_PALAVRAS"));
+});
+
+test("conciliação: dose divergente no tópico 13 bloqueia",()=>{
+ const c=[...campos]; c[12]="Manter ceftriaxona 1 g EV 24/24 h conforme prescrição sintética.";
+ const r=validarParecer({campos:c,dispositivos,antimicrobianos});
+ assert.ok(r.pendencias.some(p=>p.codigo==="ATB_POSOLOGIA_NAO_CONCILIADA"&&p.campo==="dose"));
 });
