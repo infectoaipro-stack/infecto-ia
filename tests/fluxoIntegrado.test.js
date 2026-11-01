@@ -13,7 +13,9 @@ const antimicrobianos=[{situacao:"em_uso",nome:"ceftriaxona",dose:"2 g",via:"EV"
 
 test("fluxo: dados estruturados completos não equivalem a homologação clínica",()=>{
  const r=validarParecer({campos,dispositivos,antimicrobianos});
- assert.equal(r.status,"PRONTO_PARA_REVISAO");
+ assert.equal(r.status,"PENDENTE");
+ assert.ok(r.pendencias.some(p=>p.codigo==="ATB_JUSTIFICATIVA_SEM_VINCULO"));
+ assert.ok(r.pendencias.some(p=>p.codigo==="ATB_OPINIAO_SEM_VINCULO"));
  assert.equal(r.validacaoClinica,false);
 });
 test("fluxo: dose ausente bloqueia mesmo com os 15 tópicos preenchidos",()=>{
