@@ -58,3 +58,10 @@ test("contradicao: dispositivo estruturado omitido no topico 8 bloqueia",()=>{
  const r=validarParecer({campos:c,dispositivos,antimicrobianos});
  assert.ok(r.pendencias.some(p=>p.codigo==="DISPOSITIVO_NAO_CONCILIADO"));
 });
+
+test("limite editorial: mais de 830 palavras bloqueia a revisão",()=>{
+ const c=[...campos]; c[9]=Array(835).fill("texto").join(" ");
+ const r=validarParecer({campos:c,dispositivos,antimicrobianos});
+ assert.equal(r.status,"BLOQUEADO");
+ assert.ok(r.pendencias.some(p=>p.codigo==="LIMITE_PALAVRAS"));
+});
