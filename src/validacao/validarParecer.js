@@ -32,6 +32,11 @@ export function validarParecer({ campos = [], dispositivos = [], antimicrobianos
       }
     }
   }
+  // Limite editorial: nao considerar pronto um parecer acima de 830 palavras.
+  const totalPalavras = campos.map(v => String(v ?? "")).join(" ").trim().split(/\s+/).filter(Boolean).length;
+  if (totalPalavras > 830) {
+    pendencias.push({ codigo: "LIMITE_PALAVRAS", gravidade: "critica", mensagem: "Conteudo ultrapassa 830 palavras; revisar antes de gerar parecer." });
+  }
   // Barreiras conservadoras: registro estruturado nao pode contrariar texto.
   const normalizar = v => String(v ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const topico7 = normalizar(campos[6]);
