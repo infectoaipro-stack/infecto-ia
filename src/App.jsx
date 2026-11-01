@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { auditarSiglas } from "./validacao/auditarSiglas.js";
+import { validarParecer } from "./validacao/validarParecer.js";
 
 const TOPICOS = [
   {
@@ -99,6 +101,8 @@ export default function App() {
     return `${indice + 1}. ${topico.titulo}\n${conteudo}`;
   }).join("\n\n────────────────────────\n\n").toUpperCase();
 
+  const auditoriaSiglas = auditarSiglas(textoParecer);
+  const auditoriaEstrutural = validarParecer({campos});
   const quantidadePalavras = textoParecer
     .trim()
     .split(/\s+/)
@@ -247,6 +251,11 @@ export default function App() {
                 border: "1px solid #ccc"
               }}
             >
+              <h2>AUDITORIA EXPERIMENTAL — SEM VALIDAÇÃO CLÍNICA</h2>
+              <p>Estrutura: {auditoriaEstrutural.status} — {auditoriaEstrutural.pendencias.length} pendências. Dispositivos e ATB ainda exigem conferência estruturada.</p>
+              <p>Siglas: {auditoriaSiglas.status} — {auditoriaSiglas.achados.length} alertas.</p>
+              <ul>{auditoriaSiglas.achados.map((a,i) => <li key={i}>{a.codigo}: {a.sigla} {a.trecho || ""}</li>)}</ul>
+              <p>Não há correção automática nem autorização para uso clínico.</p>
               <h2>BLOCO 1 — PRÉ-VALIDAÇÃO DO PARECER</h2>
               <p>Conferência preliminar. Não integra o parecer institucional final.</p>
               <h3>1. TRIAGEM DE ANTIMICROBIANOS</h3>
