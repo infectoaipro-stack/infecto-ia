@@ -80,8 +80,11 @@ export function validarParecer({ campos = [], dispositivos = [], antimicrobianos
       pendencias.push({ codigo: "DISPOSITIVO_SITUACAO_CONTRADITORIA", topico: 8, indice: i, gravidade: "critica", mensagem: "Mesmo tipo de dispositivo registrado como presente e ausente; conferir identificacao e localizacao." });
     }
   }
-  if (ausenciaDispositivos && /\b(cvc|cateter venoso central|sonda vesical|svd|tubo orotraqueal|tot|traqueostomia|tqt|picc)\b/.test(topico8)) {
-    pendencias.push({ codigo: "DISPOSITIVO_CONTRADICAO_TEXTO", topico: 8, gravidade: "critica", mensagem: "Texto menciona dispositivo, mas registro estruturado declara ausencia; revisar contexto." });
+  // Ausencia generica declarada sem tipo e texto que cita dispositivo: revisar.
+  // Se a ausencia se refere a um tipo identificado, nao confundir com outro presente.
+  const ausenciaGenerica = dispositivos.some(d => d?.situacao === "ausente" && !String(d?.tipo ?? "").trim());
+  if (ausenciaGenerica && /\b(cvc|cateter venoso central|sonda vesical|svd|tubo orotraqueal|tot|traqueostomia|tqt|picc)\b/.test(topico8)) {
+    pendencias.push({ codigo: "DISPOSITIVO_CONTRADICAO_TEXTO", topico: 8, gravidade: "critica", mensagem: "Ausencia generica declarada com mencao a dispositivo no texto; revisar contexto." });
   }
   for (const [i, d] of dispositivos.entries()) {
     if (d?.situacao !== "presente" || !String(d?.tipo ?? "").trim()) continue;
