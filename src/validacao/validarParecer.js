@@ -42,7 +42,7 @@ export function validarParecer({ campos = [], dispositivos = [], antimicrobianos
   if (semUso && comUso) {
     pendencias.push({ codigo: "ATB_SITUACAO_CONTRADITORIA", topico: 7, gravidade: "critica", mensagem: "Ausencia documentada e antimicrobiano registrado simultaneamente." });
   }
-  if (semUso && /\\b(em uso|uso atual|prescrito|recebe|mant[eé]r|iniciar|ceftriaxona|meropenem|vancomicina|piperacilina|linezolida)\\b/.test(topico7 + " " + topico13)) {
+  if (semUso && /\b(em uso|uso atual|prescrito|recebe|mant[eé]r|iniciar|ceftriaxona|meropenem|vancomicina|piperacilina|linezolida)\b/.test(topico7 + " " + topico13)) {
     pendencias.push({ codigo: "ATB_CONTRADICAO_TEXTO", topico: 7, gravidade: "critica", mensagem: "Texto sugere antimicrobiano, mas registro estruturado declara ausencia; revisar manualmente." });
   }
   for (const [i, a] of antimicrobianos.entries()) {
@@ -56,7 +56,7 @@ export function validarParecer({ campos = [], dispositivos = [], antimicrobianos
   if (ausenciaDispositivos && dispositivos.some(d => d?.situacao === "presente")) {
     pendencias.push({ codigo: "DISPOSITIVO_SITUACAO_CONTRADITORIA", topico: 8, gravidade: "critica", mensagem: "Presenca e ausencia documentadas simultaneamente." });
   }
-  if (ausenciaDispositivos && /\\b(cvc|cateter venoso central|sonda vesical|svd|tubo orotraqueal|tot|traqueostomia|tqt|picc)\\b/.test(topico8)) {
+  if (ausenciaDispositivos && /\b(cvc|cateter venoso central|sonda vesical|svd|tubo orotraqueal|tot|traqueostomia|tqt|picc)\b/.test(topico8)) {
     pendencias.push({ codigo: "DISPOSITIVO_CONTRADICAO_TEXTO", topico: 8, gravidade: "critica", mensagem: "Texto menciona dispositivo, mas registro estruturado declara ausencia; revisar contexto." });
   }
   for (const [i, d] of dispositivos.entries()) {
