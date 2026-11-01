@@ -58,6 +58,12 @@ export function validarParecer({ campos = [], dispositivos = [], antimicrobianos
     }
     // Conferencia textual conservadora: a presenca do nome nao comprova posologia.
     // Alertar para revisao humana quando os dados estruturados nao aparecem na conduta.
+    // Data informada no inventario precisa constar no historico (topico 7).
+    // Nao presume D0 nem comprova administracao; apenas detecta omissao textual.
+    const inicio = String(a?.inicio ?? "").trim();
+    if (inicio && !String(campos[6] ?? "").includes(inicio)) {
+      pendencias.push({ codigo: "ATB_INICIO_NAO_CONCILIADO", topico: 7, indice: i, campo: "inicio", gravidade: "critica", mensagem: "Data de inicio estruturada nao identificada no topico 7; conferir origem e evidencia da data." });
+    }
     for (const campo of ["dose", "via", "intervalo"]) {
       const valor = normalizar(a?.[campo]).replace(/\s+/g, " ").trim();
       if (valor && !topico13.replace(/\s+/g, " ").includes(valor)) {
