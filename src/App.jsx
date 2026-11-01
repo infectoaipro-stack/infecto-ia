@@ -280,7 +280,13 @@ export default function App() {
               }}
             >
               <h2>AUDITORIA EXPERIMENTAL — SEM VALIDAÇÃO CLÍNICA</h2>
-              <p>Estrutura: {auditoriaEstrutural.status} — {auditoriaEstrutural.pendencias.length} pendências. Dispositivos e ATB ainda exigem conferência estruturada.</p>
+              <p>Estrutura: {auditoriaEstrutural.status} — {auditoriaEstrutural.pendencias.length} pendências. A conferência estruturada não substitui a revisão da prescrição e do prontuário.</p>
+              <h3>PENDÊNCIAS E BLOQUEIOS ESTRUTURAIS</h3>
+              {auditoriaEstrutural.pendencias.length === 0 ? <p>Nenhuma pendência estrutural detectada automaticamente. Sem validação clínica.</p> : (
+                <ul>{auditoriaEstrutural.pendencias.map((p,i) => (
+                  <li key={i}><strong>{p.gravidade.toUpperCase()} — {p.codigo}</strong> (tópico {p.topico}): {p.mensagem}</li>
+                ))}</ul>
+              )}
               <p>Siglas: {auditoriaSiglas.status} — {auditoriaSiglas.achados.length} alertas.</p>
               <ul>{auditoriaSiglas.achados.map((a,i) => <li key={i}>{a.codigo}: {a.sigla} {a.trecho || ""}</li>)}</ul>
               <p>Não há correção automática nem autorização para uso clínico.</p>
