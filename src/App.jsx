@@ -86,6 +86,8 @@ export default function App() {
     Array(TOPICOS.length).fill("")
   );
   const [visualizar, setVisualizar] = useState(false);
+  const [dispositivos, setDispositivos] = useState([]);
+  const [antimicrobianos, setAntimicrobianos] = useState([]);
 
   function atualizarCampo(indice, valor) {
     setCampos((anteriores) =>
@@ -102,7 +104,7 @@ export default function App() {
   }).join("\n\n────────────────────────\n\n").toUpperCase();
 
   const auditoriaSiglas = auditarSiglas(textoParecer);
-  const auditoriaEstrutural = validarParecer({campos});
+  const auditoriaEstrutural = validarParecer({campos, dispositivos, antimicrobianos});
   const quantidadePalavras = textoParecer
     .trim()
     .split(/\s+/)
@@ -221,6 +223,32 @@ export default function App() {
               />
             </div>
           ))}
+
+          
+          <fieldset style={{marginTop:24}}>
+            <legend>CONFERÊNCIA ESTRUTURADA — DADOS FICTÍCIOS</legend>
+            <p>Registrar cada dispositivo e antimicrobiano. Texto livre não substitui a conferência.</p>
+            <h3>DISPOSITIVOS</h3>
+            <button type="button" onClick={() => setDispositivos([{situacao:"ausente"}])}>AUSÊNCIA DOCUMENTADA</button>
+            <button type="button" onClick={() => setDispositivos(ds => [...ds.filter(d => d.situacao !== "ausente"),{situacao:"presente",tipo:"",avaliacao:""}])}>ADICIONAR DISPOSITIVO</button>
+            {dispositivos.map((d,i) => <div key={i}>
+              <strong>Dispositivo {i+1}: {d.situacao}</strong>
+              {d.situacao === "presente" && <>
+                <input aria-label={"Tipo do dispositivo "+(i+1)} placeholder="Tipo e localização" value={d.tipo} onChange={e => setDispositivos(ds => ds.map((x,j) => i===j?{...x,tipo:e.target.value}:x))}/>
+                <input aria-label={"Avaliação do dispositivo "+(i+1)} placeholder="Avaliação documentada" value={d.avaliacao} onChange={e => setDispositivos(ds => ds.map((x,j) => i===j?{...x,avaliacao:e.target.value}:x))}/>
+              </>}
+              <button type="button" onClick={() => setDispositivos(ds => ds.filter((_,j) => j!==i))}>REMOVER</button>
+            </div>)}
+            <h3>ANTIMICROBIANOS</h3>
+            <button type="button" onClick={() => setAntimicrobianos([{situacao:"sem_uso_documentado"}])}>SEM USO DOCUMENTADO</button>
+            <button type="button" onClick={() => setAntimicrobianos(as => [...as.filter(a => a.situacao !== "sem_uso_documentado"),{situacao:"em_uso",nome:"",dose:"",via:"",intervalo:"",inicio:""}])}>ADICIONAR ATB</button>
+            {antimicrobianos.map((a,i) => <div key={i}>
+              <strong>ATB {i+1}: {a.situacao}</strong>
+              {a.situacao !== "sem_uso_documentado" && ["nome","dose","via","intervalo","inicio"].map(chave => <label key={chave}>{chave}: <input aria-label={"ATB "+(i+1)+" "+chave} value={a[chave]||""} onChange={e => setAntimicrobianos(as => as.map((x,j) => i===j?{...x,[chave]:e.target.value}:x))}/></label>)}
+              <button type="button" onClick={() => setAntimicrobianos(as => as.filter((_,j) => j!==i))}>REMOVER</button>
+            </div>)}
+            <p>Protótipo: conferir também coerência entre campos estruturados, tópicos 7, 8 e 13, prescrição e prontuário antes da homologação.</p>
+          </fieldset>
 
           <div style={{ marginTop: "24px" }}>
             <button
