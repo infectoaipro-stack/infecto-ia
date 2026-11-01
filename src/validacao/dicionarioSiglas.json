@@ -1,0 +1,288 @@
+{
+  "versao": "proposta-2026-11-01",
+  "estado": "CANDIDATO_A_REVISAO_CLINICA",
+  "regra": "Siglas consagradas no texto narrativo; raras definidas na primeira ocorrencia; ambiguas contextualizadas; proibida substituicao automatica em prescricoes.",
+  "fontes": [
+    "https://www.gov.br/anvisa/pt-br/assuntos/servicosdesaude/prevencao-e-controle-de-infeccao-e-resistencia-microbiana/anvisa-15-de-maio-dia-nacional-do-controle-das-infeccoes-hospitalares-1/15-de-maio-de-2026-dia-nacional-do-controle-das-infeccoes-hospitalares",
+    "https://www.cdc.gov/nhsn/2022rebaseline/index.html",
+    "https://www.cdc.gov/infection-control/hcp/c-i-dressings/abbreviations.html",
+    "https://ismp-brasil.org/wp-content/uploads/2024/06/V4N2.pdf"
+  ],
+  "siglas": [
+    {
+      "sigla": "HAS",
+      "definicao": "hipertensão arterial sistêmica",
+      "classe": "comum"
+    },
+    {
+      "sigla": "DM",
+      "definicao": "diabetes mellitus",
+      "classe": "comum"
+    },
+    {
+      "sigla": "DM2",
+      "definicao": "diabetes mellitus tipo 2",
+      "classe": "comum"
+    },
+    {
+      "sigla": "DRC",
+      "definicao": "doença renal crônica",
+      "classe": "comum"
+    },
+    {
+      "sigla": "LRA",
+      "definicao": "lesão renal aguda",
+      "classe": "comum"
+    },
+    {
+      "sigla": "DPOC",
+      "definicao": "doença pulmonar obstrutiva crônica",
+      "classe": "comum"
+    },
+    {
+      "sigla": "ICC",
+      "definicao": "insuficiência cardíaca congestiva",
+      "classe": "comum"
+    },
+    {
+      "sigla": "FA",
+      "definicao": "fibrilação atrial",
+      "classe": "comum"
+    },
+    {
+      "sigla": "IAM",
+      "definicao": "infarto agudo do miocárdio",
+      "classe": "comum"
+    },
+    {
+      "sigla": "AVC",
+      "definicao": "acidente vascular cerebral",
+      "classe": "comum"
+    },
+    {
+      "sigla": "TEP",
+      "definicao": "tromboembolismo pulmonar",
+      "classe": "comum"
+    },
+    {
+      "sigla": "TVP",
+      "definicao": "trombose venosa profunda",
+      "classe": "comum"
+    },
+    {
+      "sigla": "UTI",
+      "definicao": "unidade de terapia intensiva",
+      "classe": "ambigua"
+    },
+    {
+      "sigla": "VM",
+      "definicao": "ventilação mecânica",
+      "classe": "comum"
+    },
+    {
+      "sigla": "VNI",
+      "definicao": "ventilação não invasiva",
+      "classe": "comum"
+    },
+    {
+      "sigla": "TQT",
+      "definicao": "traqueostomia",
+      "classe": "comum"
+    },
+    {
+      "sigla": "IOT",
+      "definicao": "intubação orotraqueal",
+      "classe": "comum"
+    },
+    {
+      "sigla": "CVC",
+      "definicao": "cateter venoso central",
+      "classe": "comum"
+    },
+    {
+      "sigla": "PICC",
+      "definicao": "cateter central de inserção periférica",
+      "classe": "comum"
+    },
+    {
+      "sigla": "SVD",
+      "definicao": "sonda vesical de demora",
+      "classe": "comum"
+    },
+    {
+      "sigla": "SNE",
+      "definicao": "sonda nasoenteral",
+      "classe": "comum"
+    },
+    {
+      "sigla": "HD",
+      "definicao": "hemodiálise",
+      "classe": "comum"
+    },
+    {
+      "sigla": "ATB",
+      "definicao": "antimicrobiano/antibiótico conforme contexto",
+      "classe": "ambigua"
+    },
+    {
+      "sigla": "EV",
+      "definicao": "endovenoso",
+      "classe": "comum"
+    },
+    {
+      "sigla": "VO",
+      "definicao": "via oral",
+      "classe": "comum"
+    },
+    {
+      "sigla": "IM",
+      "definicao": "intramuscular",
+      "classe": "comum"
+    },
+    {
+      "sigla": "SC",
+      "definicao": "subcutâneo",
+      "classe": "comum"
+    },
+    {
+      "sigla": "PCR",
+      "definicao": "proteína C-reativa ou reação em cadeia da polimerase",
+      "classe": "ambigua"
+    },
+    {
+      "sigla": "PCT",
+      "definicao": "procalcitonina ou outra acepção contextual",
+      "classe": "ambigua"
+    },
+    {
+      "sigla": "HMC",
+      "definicao": "hemocultura",
+      "classe": "comum"
+    },
+    {
+      "sigla": "UC",
+      "definicao": "urocultura",
+      "classe": "ambigua"
+    },
+    {
+      "sigla": "IRAS",
+      "definicao": "infecção relacionada à assistência à saúde",
+      "classe": "comum"
+    },
+    {
+      "sigla": "CCIH",
+      "definicao": "comissão de controle de infecção hospitalar",
+      "classe": "comum"
+    },
+    {
+      "sigla": "SCIH",
+      "definicao": "serviço de controle de infecção hospitalar",
+      "classe": "comum"
+    },
+    {
+      "sigla": "IPCS",
+      "definicao": "infecção primária da corrente sanguínea",
+      "classe": "comum"
+    },
+    {
+      "sigla": "ISC",
+      "definicao": "infecção de sítio cirúrgico",
+      "classe": "comum"
+    },
+    {
+      "sigla": "PAV",
+      "definicao": "pneumonia associada à ventilação mecânica",
+      "classe": "comum"
+    },
+    {
+      "sigla": "ITU-AC",
+      "definicao": "infecção do trato urinário associada a cateter",
+      "classe": "comum"
+    },
+    {
+      "sigla": "ITU",
+      "definicao": "infecção do trato urinário",
+      "classe": "comum"
+    },
+    {
+      "sigla": "MRSA",
+      "definicao": "Staphylococcus aureus resistente à meticilina",
+      "classe": "rara"
+    },
+    {
+      "sigla": "MSSA",
+      "definicao": "Staphylococcus aureus sensível à meticilina",
+      "classe": "rara"
+    },
+    {
+      "sigla": "ESBL",
+      "definicao": "betalactamase de espectro estendido",
+      "classe": "rara"
+    },
+    {
+      "sigla": "KPC",
+      "definicao": "carbapenemase de Klebsiella pneumoniae",
+      "classe": "rara"
+    },
+    {
+      "sigla": "CRE",
+      "definicao": "Enterobacterales resistentes aos carbapenêmicos",
+      "classe": "rara"
+    },
+    {
+      "sigla": "CLABSI",
+      "definicao": "infecção da corrente sanguínea associada a cateter central (critério NHSN)",
+      "classe": "rara"
+    },
+    {
+      "sigla": "CAUTI",
+      "definicao": "infecção do trato urinário associada a cateter (critério NHSN)",
+      "classe": "rara"
+    },
+    {
+      "sigla": "CRBSI",
+      "definicao": "infecção da corrente sanguínea relacionada a cateter",
+      "classe": "rara"
+    },
+    {
+      "sigla": "VAE",
+      "definicao": "evento associado à ventilação mecânica",
+      "classe": "rara"
+    },
+    {
+      "sigla": "SSI",
+      "definicao": "infecção de sítio cirúrgico (termo NHSN)",
+      "classe": "rara"
+    },
+    {
+      "sigla": "CDI",
+      "definicao": "infecção por Clostridioides difficile",
+      "classe": "rara"
+    },
+    {
+      "sigla": "IRA",
+      "definicao": "insuficiência renal aguda ou insuficiência respiratória aguda",
+      "classe": "ambigua"
+    },
+    {
+      "sigla": "D0",
+      "definicao": "data de início do antimicrobiano",
+      "classe": "ambigua"
+    },
+    {
+      "sigla": "HDA",
+      "definicao": "história da doença atual",
+      "classe": "comum"
+    },
+    {
+      "sigla": "DIH",
+      "definicao": "dia de internação hospitalar",
+      "classe": "comum"
+    },
+    {
+      "sigla": "RT",
+      "definicao": "responsável técnico",
+      "classe": "ambigua"
+    }
+  ]
+}
