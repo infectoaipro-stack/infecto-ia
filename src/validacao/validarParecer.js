@@ -71,6 +71,20 @@ export function validarParecer({ campos = [], dispositivos = [], antimicrobianos
       }
     }
   }
+  // Tópicos 12 e 14 são clínicos: exigir preenchimento não equivale a julgar adequação.
+  // Sinalizar ausência de menção ao fármaco sem inferir decisão terapêutica.
+  const topico12 = normalizar(campos[11]);
+  const topico14 = normalizar(campos[13]);
+  for (const [i, a] of antimicrobianos.entries()) {
+    if (a?.situacao === "sem_uso_documentado" || !String(a?.nome ?? "").trim()) continue;
+    const nome = normalizar(a.nome).trim();
+    if (!topico12.includes(nome)) {
+      pendencias.push({ codigo: "ATB_JUSTIFICATIVA_SEM_VINCULO", topico: 12, indice: i, gravidade: "pendente", mensagem: "Justificativa sem mencao explicita ao antimicrobiano; conferir pertinencia clinica e relacao com a conduta." });
+    }
+    if (!topico14.includes(nome)) {
+      pendencias.push({ codigo: "ATB_OPINIAO_SEM_VINCULO", topico: 14, indice: i, gravidade: "pendente", mensagem: "Opiniao sem mencao explicita ao antimicrobiano; verificar se a sintese clinica aborda a estrategia terapeutica." });
+    }
+  }
   const ausenciaDispositivos = dispositivos.some(d => d?.situacao === "ausente");
   // Dispositivos diferentes podem legitimamente ter situacoes diferentes.
   // Bloquear apenas registros contraditorios do mesmo tipo identificado.
