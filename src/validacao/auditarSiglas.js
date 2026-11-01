@@ -1,30 +1,29 @@
-// Auditoria editorial deterministica; nao substitui revisao humana.
-// Dicionario inicial conservador. Expansoes so sao sugeridas em texto narrativo.
-const termos = [
-  {extenso:/\bhipertens[aã]o arterial sist[eê]mica\b/giu,sigla:"HAS"},
-  {extenso:/\bdiabetes mellitus\b/giu,sigla:"DM"},
-  {extenso:/\bdoen[cç]a renal cr[oô]nica\b/giu,sigla:"DRC"},
-  {extenso:/\bventila[cç][aã]o mec[aâ]nica\b/giu,sigla:"VM"},
-  {extenso:/\bcateter venoso central\b/giu,sigla:"CVC"},
-  {extenso:/\bsonda vesical de demora\b/giu,sigla:"SVD"}
-];
-const raras = [{sigla:"CLABSI",definicao:/infec[cç][aã]o da corrente sangu[ií]nea associada a cateter central/iu}];
-const ambiguas = new Set(["IRA"]); // insuficiencia renal ou respiratoria aguda
-export function auditarSiglas(texto="") {
-  const achados=[];
-  const entrada=String(texto);
-  for(const {extenso,sigla} of termos) {
-    const ocorrencias=[...entrada.matchAll(extenso)];
-    for(const o of ocorrencias) achados.push({codigo:"SIGLA_USUAL_POR_REVISAR",sigla,trecho:o[0],indice:o.index,gravidade:"editorial",mensagem:"Avaliar substituicao pela sigla consagrada; preservar clareza."});
+import catalogo from "./dicionarioSiglas.json" with { type: "json" };
+// Auditoria editorial conservadora. Nunca altera prescricoes ou aprova clinicamente.
+const normalizar = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("pt-BR");
+const escapeRegex = s => s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+const palavra = s => new RegExp("(?<![\\p{L}\\p{N}])"+escapeRegex(s)+"(?![\\p{L}\\p{N}])","giu");
+const ignorar = new Set(["EV","VO","IM","SC","D0"]); // via e posologia nao sao corrigidas automaticamente
+export function auditarSiglas(texto = "") {
+ const entrada=String(texto), normal=normalizar(entrada), achados=[];
+ for(const item of catalogo.siglas) {
+  const {sigla,definicao,classe}=item;
+  if(classe==="comum" && !ignorar.has(sigla)) {
+   // Nao converter termos com definicao ambigua ou varias alternativas.
+   if(definicao.includes(" ou ") || definicao.includes("/")) continue;
+   for(const match of normal.matchAll(palavra(normalizar(definicao)))) {
+    achados.push({codigo:"SIGLA_USUAL_POR_REVISAR",sigla,trecho:entrada.slice(match.index,match.index+match[0].length),indice:match.index,gravidade:"editorial"});
+   }
   }
-  for(const {sigla,definicao} of raras) {
-    const re=new RegExp("\\b"+sigla+"\\b","g");
-    const ocorrencias=[...entrada.matchAll(re)];
-    if(ocorrencias.length && !definicao.test(entrada.slice(Math.max(0,ocorrencias[0].index-150),ocorrencias[0].index+180))) achados.push({codigo:"SIGLA_RARA_SEM_DEFINICAO",sigla,indice:ocorrencias[0].index,gravidade:"editorial"});
+  const ocorrencias=[...entrada.matchAll(palavra(sigla))];
+  if(!ocorrencias.length) continue;
+  if(classe==="rara") {
+   const primeira=ocorrencias[0];
+   const janela=normal.slice(Math.max(0,primeira.index-160),Math.min(normal.length,primeira.index+sigla.length+180));
+   const definicaoBase=normalizar(definicao.replace(/\s*\([^)]*\)\s*$/,""));
+   if(!janela.includes(definicaoBase)) achados.push({codigo:"SIGLA_RARA_SEM_DEFINICAO",sigla,indice:primeira.index,gravidade:"editorial"});
   }
-  for(const sigla of ambiguas) {
-    const re=new RegExp("\\b"+sigla+"\\b","g");
-    if(re.test(entrada)) achados.push({codigo:"SIGLA_AMBIGUA",sigla,gravidade:"editorial",mensagem:"Verificar sentido clinico; nao substituir automaticamente."});
-  }
-  return {status:achados.length?"REVISAO_EDITORIAL":"SEM_ALERTAS_DO_DICIONARIO",validacaoClinica:false,achados};
+  if(classe==="ambigua") achados.push({codigo:"SIGLA_AMBIGUA",sigla,indice:ocorrencias[0].index,gravidade:"editorial",mensagem:"Conferir contexto; nao substituir automaticamente."});
+ }
+ return {status:achados.length?"REVISAO_EDITORIAL":"SEM_ALERTAS_DO_DICIONARIO",validacaoClinica:false,achados,entradasDicionario:catalogo.siglas.length};
 }
