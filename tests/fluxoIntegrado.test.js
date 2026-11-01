@@ -5,7 +5,7 @@ import {auditarSiglas} from "../src/validacao/auditarSiglas.js";
 
 // Casos sintéticos: não contêm dados de pacientes.
 const campos=Array.from({length:15},(_,i)=>"INFORMAÇÃO FICTÍCIA TÓPICO "+(i+1));
-campos[6]="Ceftriaxona em uso; registro sintético.";
+campos[6]="Ceftriaxona em uso; início informado 01/11/2026; registro sintético.";
 campos[7]="CVC com sítio sem alterações documentadas.";
 campos[12]="Manter ceftriaxona 2 g EV 24/24 h conforme prescrição sintética.";
 const dispositivos=[{situacao:"presente",tipo:"CVC",avaliacao:"SÍTIO SEM ALTERAÇÕES DOCUMENTADAS"}];
@@ -70,4 +70,10 @@ test("conciliação: dose divergente no tópico 13 bloqueia",()=>{
  const c=[...campos]; c[12]="Manter ceftriaxona 1 g EV 24/24 h conforme prescrição sintética.";
  const r=validarParecer({campos:c,dispositivos,antimicrobianos});
  assert.ok(r.pendencias.some(p=>p.codigo==="ATB_POSOLOGIA_NAO_CONCILIADA"&&p.campo==="dose"));
+});
+
+test("conciliação: data de início ausente no tópico 7 bloqueia",()=>{
+ const c=[...campos];c[6]="Ceftriaxona em uso, sem data registrada.";
+ const r=validarParecer({campos:c,dispositivos,antimicrobianos});
+ assert.ok(r.pendencias.some(p=>p.codigo==="ATB_INICIO_NAO_CONCILIADO"));
 });
