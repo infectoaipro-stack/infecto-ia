@@ -145,13 +145,13 @@ export default function App() {
       }}
     >
       <h1>INFECTO IA</h1>
-      <h2>Versão 3.7</h2>
+      <h2>Protótipo experimental — implementação parcial do protocolo V3.9</h2>
 
       <p>Sistema de Apoio à Infectologia</p>
       <p>Hospital Ruy Azeredo</p>
 
       <p>
-        Protocolo canônico — revisão de 22/10/2026
+        Protocolo clínico de referência: INFECTO IA V3.9 — 01/11/2026. Implementação e homologação clínica pendentes.
       </p>
 
       {!novoParecer ? (
@@ -290,7 +290,7 @@ export default function App() {
               <p>Siglas: {auditoriaSiglas.status} — {auditoriaSiglas.achados.length} alertas.</p>
               <ul>{auditoriaSiglas.achados.map((a,i) => <li key={i}>{a.codigo}: {a.sigla} {a.trecho || ""}</li>)}</ul>
               <p>Não há correção automática nem autorização para uso clínico.</p>
-              <h2>BLOCO 1 — PRÉ-VALIDAÇÃO DO PARECER</h2>
+              <h2>PRÉ-VALIDAÇÃO EXPERIMENTAL — NÃO HOMOLOGADA</h2>
               <p>Conferência preliminar. Não integra o parecer institucional final.</p>
               <h3>1. TRIAGEM DE ANTIMICROBIANOS</h3>
               <p style={{color: atb ? "#8a5a00" : "#a00000"}}>
