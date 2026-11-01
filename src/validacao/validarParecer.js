@@ -56,6 +56,14 @@ export function validarParecer({ campos = [], dispositivos = [], antimicrobianos
     if (!topico7.includes(nome) || !topico13.includes(nome)) {
       pendencias.push({ codigo: "ATB_NAO_CONCILIADO", topico: 13, indice: i, gravidade: "critica", mensagem: "Nome do antimicrobiano estruturado deve ser conferido nos topicos 7 e 13." });
     }
+    // Conferencia textual conservadora: a presenca do nome nao comprova posologia.
+    // Alertar para revisao humana quando os dados estruturados nao aparecem na conduta.
+    for (const campo of ["dose", "via", "intervalo"]) {
+      const valor = normalizar(a?.[campo]).replace(/\s+/g, " ").trim();
+      if (valor && !topico13.replace(/\s+/g, " ").includes(valor)) {
+        pendencias.push({ codigo: "ATB_POSOLOGIA_NAO_CONCILIADA", topico: 13, indice: i, campo, gravidade: "critica", mensagem: "Conferir "+campo+" do antimicrobiano na conduta; divergencia textual ou formato diferente exige revisao." });
+      }
+    }
   }
   const ausenciaDispositivos = dispositivos.some(d => d?.situacao === "ausente");
   // Dispositivos diferentes podem legitimamente ter situacoes diferentes.
