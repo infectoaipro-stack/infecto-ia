@@ -58,8 +58,13 @@ export function validarParecer({ campos = [], dispositivos = [], antimicrobianos
     }
   }
   const ausenciaDispositivos = dispositivos.some(d => d?.situacao === "ausente");
-  if (ausenciaDispositivos && dispositivos.some(d => d?.situacao === "presente")) {
-    pendencias.push({ codigo: "DISPOSITIVO_SITUACAO_CONTRADITORIA", topico: 8, gravidade: "critica", mensagem: "Presenca e ausencia documentadas simultaneamente." });
+  // Dispositivos diferentes podem legitimamente ter situacoes diferentes.
+  // Bloquear apenas registros contraditorios do mesmo tipo identificado.
+  const tiposPresentes = new Set(dispositivos.filter(d => d?.situacao === "presente" && String(d?.tipo ?? "").trim()).map(d => normalizar(d.tipo).trim()));
+  for (const [i, d] of dispositivos.entries()) {
+    if (d?.situacao === "ausente" && String(d?.tipo ?? "").trim() && tiposPresentes.has(normalizar(d.tipo).trim())) {
+      pendencias.push({ codigo: "DISPOSITIVO_SITUACAO_CONTRADITORIA", topico: 8, indice: i, gravidade: "critica", mensagem: "Mesmo tipo de dispositivo registrado como presente e ausente; conferir identificacao e localizacao." });
+    }
   }
   if (ausenciaDispositivos && /\b(cvc|cateter venoso central|sonda vesical|svd|tubo orotraqueal|tot|traqueostomia|tqt|picc)\b/.test(topico8)) {
     pendencias.push({ codigo: "DISPOSITIVO_CONTRADICAO_TEXTO", topico: 8, gravidade: "critica", mensagem: "Texto menciona dispositivo, mas registro estruturado declara ausencia; revisar contexto." });
