@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { auditarSiglas } from "./validacao/auditarSiglas.js";
 import { validarParecer } from "./validacao/validarParecer.js";
+import { TOPICOS_V41, VERSAO_PROTOCOLO, formatarAntimicrobianos, validarBlocoZeroV41 } from "./validacao/protocoloV41.js";
 
 const TOPICOS = [
   {
-    titulo: "DADOS DO PACIENTE",
+    titulo: "DADOS DA PACIENTE/DO PACIENTE",
     orientacao:
       "Nome, idade, sexo, prontuário, atendimento, hospital, unidade, leito, origem, data da internação e avaliação."
   },
@@ -24,7 +25,7 @@ const TOPICOS = [
       "Registrar todas as comorbidades e alergias documentadas."
   },
   {
-    titulo: "HÁBITOS DO PACIENTE",
+    titulo: "HÁBITOS",
     orientacao:
       "Registrar separadamente tabagismo, etilismo e adicção."
   },
@@ -39,22 +40,22 @@ const TOPICOS = [
       "Separar atuais e anteriores. Informar nome, dose, via, intervalo, início, término quando documentado e justificativa."
   },
   {
-    titulo: "DISPOSITIVOS IMPLANTADOS",
+    titulo: "DISPOSITIVOS INVASIVOS",
     orientacao:
       "Registrar dispositivos, localização, inserção, trocas e retirada quando documentadas."
   },
   {
-    titulo: "SINAIS, SINTOMAS E ACHADOS AO EXAME FÍSICO",
+    titulo: "MICROBIOLOGIA",
     orientacao:
       "Registrar os achados documentados, sinais vitais, suporte respiratório e hemodinâmico."
   },
   {
-    titulo: "HISTÓRIA DA DOENÇA ATUAL (HDA)",
+    titulo: "HISTÓRIA DA DOENÇA ATUAL",
     orientacao:
       "Descrever admissão, cronologia, evolução, tratamentos e situação atual."
   },
   {
-    titulo: "INTERPRETAÇÃO MICROBIOLÓGICA",
+    titulo: "EXAME FÍSICO",
     orientacao:
       "Correlacionar culturas, antibiogramas, sítios e quadro clínico."
   },
@@ -69,7 +70,7 @@ const TOPICOS = [
       "Para cada antimicrobiano: nome, dose, via, intervalo, início documentado, justificativa, estado atual ou histórico e decisão. Não presumir administração."
   },
   {
-    titulo: "OPINIÃO DO INFECTOLOGISTA",
+    titulo: "OPINIÃO",
     orientacao:
       "Registrar análise crítica, recomendações e objetivo terapêutico."
   },
@@ -88,6 +89,7 @@ export default function App() {
   const [visualizar, setVisualizar] = useState(false);
   const [dispositivos, setDispositivos] = useState([]);
   const [antimicrobianos, setAntimicrobianos] = useState([]);
+  const [populacao, setPopulacao] = useState("adulto");
 
   function atualizarCampo(indice, valor) {
     setCampos((anteriores) =>
@@ -100,11 +102,13 @@ export default function App() {
   const textoParecer = TOPICOS.map((topico, indice) => {
     const conteudo = campos[indice].trim() || "NÃO INFORMADO";
 
-    return `${indice + 1}. ${topico.titulo}\n${conteudo}`;
+    return `${topico.titulo}\n${conteudo}`;
   }).join("\n\n────────────────────────\n\n").toUpperCase();
 
   const auditoriaSiglas = auditarSiglas(textoParecer);
   const auditoriaEstrutural = validarParecer({campos, dispositivos, antimicrobianos});
+  const auditoriaV41 = validarBlocoZeroV41({campos, antimicrobianos, populacao});
+  const formatoV41 = formatarAntimicrobianos(antimicrobianos);
   const quantidadePalavras = textoParecer
     .trim()
     .split(/\s+/)
@@ -145,13 +149,13 @@ export default function App() {
       }}
     >
       <h1>INFECTO IA</h1>
-      <h2>Protótipo experimental — implementação parcial do protocolo V3.9</h2>
+      <h2>Protótipo experimental — motor editorial V4.1</h2>
 
       <p>Sistema de Apoio à Infectologia</p>
       <p>Hospital Ruy Azeredo</p>
 
       <p>
-        Protocolo clínico de referência: INFECTO IA V3.9 — 01/11/2026. Implementação e homologação clínica pendentes.
+        Protocolo V{VERSAO_PROTOCOLO} — 06/11/2026. Implementação experimental; NÃO HOMOLOGADO para uso clínico.
       </p>
 
       {!novoParecer ? (
@@ -165,7 +169,8 @@ export default function App() {
         </section>
       ) : (
         <section>
-          <h2>Novo Parecer para Infectologia</h2>
+          <h2>Novo Parecer para Infectologia — V{VERSAO_PROTOCOLO}</h2>
+          <label>MÓDULO POPULACIONAL: <select value={populacao} onChange={e=>setPopulacao(e.target.value)}><option value="adulto">ADULTO</option><option value="pediatria">PEDIATRIA</option><option value="neonatologia">NEONATOLOGIA</option></select></label>
 
           <p>
             Formulário de preenchimento e visualização
@@ -241,12 +246,15 @@ export default function App() {
             </div>)}
             <h3>ANTIMICROBIANOS</h3>
             <button type="button" onClick={() => setAntimicrobianos([{situacao:"sem_uso_documentado"}])}>SEM USO DOCUMENTADO</button>
-            <button type="button" onClick={() => setAntimicrobianos(as => [...as.filter(a => a.situacao !== "sem_uso_documentado"),{situacao:"em_uso",nome:"",dose:"",via:"",intervalo:"",inicio:""}])}>ADICIONAR ATB</button>
+            <button type="button" onClick={() => setAntimicrobianos(as => [...as.filter(a => a.situacao !== "sem_uso_documentado"),{situacao:"em_uso",categoria:"atual",nome:"",dose:"",via:"",intervalo:"",inicio:"",termino:"",justificativa:""}])}>ADICIONAR ATB</button>
             {antimicrobianos.map((a,i) => <div key={i}>
               <strong>ATB {i+1}: {a.situacao}</strong>
-              {a.situacao !== "sem_uso_documentado" && ["nome","dose","via","intervalo","inicio"].map(chave => <label key={chave}>{chave}: <input aria-label={"ATB "+(i+1)+" "+chave} value={a[chave]||""} onChange={e => setAntimicrobianos(as => as.map((x,j) => i===j?{...x,[chave]:e.target.value}:x))}/></label>)}
+              {a.situacao !== "sem_uso_documentado" && <><label>Categoria <select value={a.categoria||"atual"} onChange={e=>setAntimicrobianos(as=>as.map((x,j)=>i===j?{...x,categoria:e.target.value}:x))}><option value="atual">ATUAL</option><option value="anterior">ANTERIOR</option></select></label><label>Situação <select value={a.situacao||"em_uso"} onChange={e=>setAntimicrobianos(as=>as.map((x,j)=>i===j?{...x,situacao:e.target.value}:x))}><option value="em_uso">USO ATUAL DOCUMENTADO</option><option value="anterior">USO ANTERIOR DOCUMENTADO</option><option value="uso_nao_confirmado">USO NÃO CONFIRMADO</option></select></label></>}
+              {a.situacao !== "sem_uso_documentado" && ["nome","dose","via","intervalo","inicio","termino","justificativa"].map(chave => <label key={chave}>{chave}: <input aria-label={"ATB "+(i+1)+" "+chave} value={a[chave]||""} onChange={e => setAntimicrobianos(as => as.map((x,j) => i===j?{...x,[chave]:e.target.value}:x))}/></label>)}
               <button type="button" onClick={() => setAntimicrobianos(as => as.filter((_,j) => j!==i))}>REMOVER</button>
             </div>)}
+            <h4>PRÉVIA PADRÃO V4.1 — NÃO SUBSTITUI CONFERÊNCIA</h4><pre style={{whiteSpace:"pre-wrap"}}>{formatoV41.texto}</pre>
+            <p>O texto acima é uma prévia editorial; conferir e transcrever no tópico 7 sem presumir prescrição.</p>
             <p>Protótipo: conferir também coerência entre campos estruturados, tópicos 7, 8 e 13, prescrição e prontuário antes da homologação.</p>
           </fieldset>
 
@@ -281,6 +289,7 @@ export default function App() {
             >
               <h2>AUDITORIA EXPERIMENTAL — SEM VALIDAÇÃO CLÍNICA</h2>
               <p>Estrutura: {auditoriaEstrutural.status} — {auditoriaEstrutural.pendencias.length} pendências. A conferência estruturada não substitui a revisão da prescrição e do prontuário.</p>
+              <h3>VALIDADOR V4.1 — {auditoriaV41.status}</h3><ul>{auditoriaV41.pendencias.map((p,i)=><li key={i}>{p.codigo}: {p.mensagem||"Revisar dado"}</li>)}</ul>
               <h3>PENDÊNCIAS E BLOQUEIOS ESTRUTURAIS</h3>
               {auditoriaEstrutural.pendencias.length === 0 ? <p>Nenhuma pendência estrutural detectada automaticamente. Sem validação clínica.</p> : (
                 <ul>{auditoriaEstrutural.pendencias.map((p,i) => (

@@ -1,9 +1,9 @@
 name: Validacao tecnica experimental
 on:
   push:
-    branches: [feature/validador-clinico-v1]
+    branches: [feature/validador-clinico-v1, feature/infecto-ia-v4-1]
   pull_request:
-    branches: [main]
+    branches: [main, feature/validador-clinico-v1]
 jobs:
   testes-e-build:
     runs-on: ubuntu-latest
