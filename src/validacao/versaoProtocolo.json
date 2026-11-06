@@ -1,0 +1,13 @@
+{
+  "protocolo": "INFECTO IA",
+  "versao": "4.1",
+  "data": "2026-11-06",
+  "status": "EXPERIMENTAL_NAO_HOMOLOGADO",
+  "base": "V4.0",
+  "modulos": [
+    "adulto",
+    "pediatria",
+    "neonatologia"
+  ],
+  "seguranca": "Validacao estrutural nao implica validacao clinica. Doses somente de lista interna verificada."
+}
